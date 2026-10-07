@@ -25,9 +25,12 @@ const Api = (() => {
 
   return {
     // Auth
-    login: (email, password) => request('/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
-    logout: () => request('/logout', { method: 'POST' }),
+    login: (email, password) => request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+    register: (nom, email, password) => request('/auth/register', { method: 'POST', body: JSON.stringify({ nom, email, password }) }),
+    logout: () => request('/auth/logout', { method: 'POST' }),
     getMe: () => request('/me'),
+    updatePassword: (currentPassword, newPassword) => request('/me/password', { method: 'PATCH', body: JSON.stringify({ currentPassword, newPassword }) }),
+    deleteAccount: () => request('/me', { method: 'DELETE' }),
 
     // Trackers
     getTrackers: () => request('/trackers'),

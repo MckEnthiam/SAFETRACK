@@ -1,0 +1,39 @@
+PHASE 1 - DIAGNOSTIC
+
+A. REGISTRE DES FAUX (SIMULATIONS)
+1. frontend/js/app.js:88-89 - Math.random() utilisé pour créer des trackers avec de fausses coordonnées lors du clic sur "Ajouter".
+2. frontend/js/app.js:120 - Création de contact avec un numéro factice prérempli `telephone: '+228 9_ __ __ __'`.
+3. frontend/js/app.js:103-107 - Rafraîchissement simulé du radar qui rappelle simplement les mêmes données en boucle (`updateRadarReadout(cachedTrackers[0])`).
+4. frontend/index.html - Formulaire "Nouveau contact" inexistant, seul le clic bouton simule un appel backend direct.
+5. frontend/index.html - Pas de véritable page d'inscription, impossible de créer un vrai compte depuis l'UI.
+
+B. COMPTES
+- API : Le front appelle de vraies routes (/api/login, /api/me).
+- Base : Tables concernes et sessions à jour (migration motDePasseHash, sel, sessionId).
+- Identité : Authentification par sessionId en cookie HttpOnly. Données filtrées avec `WHERE concerneId = ?`.
+- Le serveur démarre bien (testé sur le port 3000) et lit correctement la DB. 
+
+C. LOCALISATION
+- navigator.geolocation n'est nulle part appelé. La position du téléphone n'est pas suivie.
+- L'URL de développement (http://localhost:3000) est un contexte sécurisé par défaut, mais un accès réseau local échouera en HTTP.
+- CSP actuelle stricte, ne bloque pas `geolocation` explicitement via Permissions-Policy, mais à vérifier.
+- Aucune carte Leaflet implémentée : le composant radar est un simple HTML/CSS simulant une carte.
+- Les positions stockées proviennent exclusivement de requêtes manuelles simulées.
+
+D. LISTE DES BLOQUANTS AU PARCOURS COMPLET
+- Impossible de s'inscrire ou donner son consentement.
+- Impossible de saisir de vrais contacts (aucun formulaire).
+- La géolocalisation ne capte pas la vraie position du téléphone.
+- Aucun lien public `/s/:token` ni notification réelle.
+- Pas de MediaRecorder pour l'enregistrement audio.
+- Historique non tracé sur une vraie carte.
+
+PLAN DE CORRECTION (PHASE 2 & 3)
+1. Créer le formulaire d'inscription et la route `POST /api/auth/register`.
+2. Créer une page de consentement légal post-inscription.
+3. Implémenter de vrais formulaires d'ajout pour Trackers et Contacts.
+4. Remplacer le faux radar par une carte Leaflet connectée à `navigator.geolocation.watchPosition`.
+5. Générer de vrais liens de suivi `/s/:token` lors du SOS avec page publique (noindex).
+6. Activer `MediaRecorder` lors d'un SOS et upload vers le backend (chiffré).
+7. Gérer le HTTPS en local (`scripts/dev-https.js`) pour autoriser le GPS sur smartphone via réseau local.
+8. Retirer tous les appels `Math.random` et statiques.

@@ -19,6 +19,8 @@ const contactsRouter = require('./routes/contacts');
 const alertsRouter = require('./routes/alerts');
 const notificationsRouter = require('./routes/notifications');
 const positionsRouter = require('./routes/positions');
+const authRouter = require('./routes/auth');
+const meRouter = require('./routes/me');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -63,42 +65,8 @@ const apiLimiter = rateLimit({
 app.use('/api/', apiLimiter);
 
 // ---- Auth Routes ----
-app.post('/api/login', loginLimiter, (req, res) => {
-  const data = parseBody(LoginSchema, req.body, res);
-  if (!data) return;
-
-  const user = db.prepare('SELECT id, motDePasseHash, sel FROM concernes WHERE email = ?').get(data.email);
-  // Réponse générique pour éviter l'énumération des emails
-  if (!user) return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
-
-  const hashToVerify = crypto.scryptSync(data.password, user.sel, 64).toString('hex');
-  if (!crypto.timingSafeEqual(Buffer.from(hashToVerify, 'hex'), Buffer.from(user.motDePasseHash, 'hex'))) {
-    return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
-  }
-
-  const sessionId = crypto.randomBytes(32).toString('hex');
-  db.prepare('UPDATE concernes SET sessionId = ? WHERE id = ?').run(sessionId, user.id);
-
-  const isHttps = process.env.NODE_ENV === 'production';
-  res.cookie('sessionId', sessionId, {
-    httpOnly: true,
-    sameSite: 'strict',
-    secure: isHttps,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
-  });
-  res.json({ ok: true, id: user.id });
-});
-
-app.post('/api/logout', requireAuth, (req, res) => {
-  db.prepare('UPDATE concernes SET sessionId = NULL WHERE id = ?').run(req.userId);
-  res.clearCookie('sessionId');
-  res.json({ ok: true });
-});
-
-app.get('/api/me', requireAuth, (req, res) => {
-  const user = db.prepare('SELECT id, nom, email, deuxFacteursActif, creeLe FROM concernes WHERE id = ?').get(req.userId);
-  res.json(user);
-});
+app.use('/api/auth', authRouter);
+app.use('/api/me', requireAuth, meRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 

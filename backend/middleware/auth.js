@@ -32,13 +32,15 @@ function requireAuth(req, res, next) {
     return res.status(401).json({ error: 'Non authentifié' });
   }
 
-  const user = db.prepare('SELECT id FROM concernes WHERE sessionId = ?').get(sessionId);
+  const session = db.prepare('SELECT concerneId, expiresAt FROM sessions WHERE id = ?').get(sessionId);
 
-  if (!user) {
+  if (!session || new Date(session.expiresAt) < new Date()) {
+    if (session) db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
     return res.status(401).json({ error: 'Session invalide ou expirée' });
   }
 
-  req.userId = user.id;
+  req.userId = session.concerneId;
+  req.sessionId = sessionId;
   next();
 }
 

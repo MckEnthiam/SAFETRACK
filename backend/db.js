@@ -12,14 +12,37 @@ const db = new DatabaseSync(DB_PATH);
 db.exec(`
   PRAGMA foreign_keys = ON;
 
+  CREATE TABLE IF NOT EXISTS schema_version (
+    version INTEGER PRIMARY KEY,
+    applied_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS concernes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nom TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     motDePasseHash TEXT NOT NULL,
     sel TEXT NOT NULL,
-    sessionId TEXT,
     deuxFacteursActif INTEGER NOT NULL DEFAULT 1,
+    creeLe TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS sessions (
+    id TEXT PRIMARY KEY,
+    concerneId INTEGER NOT NULL REFERENCES concernes(id) ON DELETE CASCADE,
+    expiresAt TEXT NOT NULL,
+    ip TEXT,
+    userAgent TEXT,
+    creeLe TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS outbox (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    concerneId INTEGER REFERENCES concernes(id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    destination TEXT NOT NULL,
+    content TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
     creeLe TEXT NOT NULL DEFAULT (datetime('now'))
   );
 

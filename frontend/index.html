@@ -76,19 +76,58 @@
             </div>
             <p class="login-tagline">Localisation en temps réel et sécurité des personnes et des objets qui comptent pour vous.</p>
 
-            <div class="field">
-              <label for="login-email">Adresse email</label>
-              <input type="email" id="login-email" placeholder="vous@exemple.com" autocomplete="email">
-            </div>
-            <div class="field">
-              <label for="login-pass">Mot de passe</label>
-              <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+            <div id="login-form-container">
+              <div class="field">
+                <label for="login-email">Adresse email</label>
+                <input type="email" id="login-email" placeholder="vous@exemple.com" autocomplete="email">
+              </div>
+              <div class="field">
+                <label for="login-pass">Mot de passe</label>
+                <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+              </div>
+
+              <div id="login-error" style="color: var(--alert); font-size: 13px; margin-bottom: 16px; text-align: center; display: none;"></div>
+
+              <button class="btn btn-primary" id="login-btn">Se connecter</button>
+              <div style="text-align: center; margin-top: 16px;">
+                <a href="#register" id="go-to-register" style="color: var(--text-muted); font-size: 14px; text-decoration: none;">Pas encore de compte ? S'inscrire</a>
+              </div>
             </div>
 
-            <div id="login-error" style="color: var(--alert); font-size: 13px; margin-bottom: 16px; text-align: center; display: none;"></div>
-
-            <button class="btn btn-primary" id="login-btn">Se connecter</button>
             <p class="login-footnote">CONNEXION CHIFFRÉE · AES-256</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== REGISTER ===================== -->
+      <section class="screen" id="screen-register" style="padding:0; max-width:none;">
+        <div class="login-wrap">
+          <div class="login-card">
+            <div class="brand-mark">
+              <div class="logo-mark" style="width:40px;height:40px;"><img src="assets/logo.png" alt="Logo SafeTrack"></div>
+              <div class="logo-text" style="font-size:19px;">Safe<span>Track</span></div>
+            </div>
+            <p class="login-tagline">Créer un compte pour sécuriser vos proches et vos biens.</p>
+
+            <div class="field">
+              <label for="register-nom">Nom complet</label>
+              <input type="text" id="register-nom" placeholder="Jean Dupont" autocomplete="name">
+            </div>
+            <div class="field">
+              <label for="register-email">Adresse email</label>
+              <input type="email" id="register-email" placeholder="vous@exemple.com" autocomplete="email">
+            </div>
+            <div class="field">
+              <label for="register-pass">Mot de passe</label>
+              <input type="password" id="register-pass" placeholder="10 caractères minimum" autocomplete="new-password">
+            </div>
+
+            <div id="register-error" style="color: var(--alert); font-size: 13px; margin-bottom: 16px; text-align: center; display: none;"></div>
+
+            <button class="btn btn-primary" id="register-btn">S'inscrire</button>
+            <div style="text-align: center; margin-top: 16px;">
+              <a href="#login" id="go-to-login" style="color: var(--text-muted); font-size: 14px; text-decoration: none;">Déjà un compte ? Se connecter</a>
+            </div>
           </div>
         </div>
       </section>
@@ -221,7 +260,24 @@
         <div class="kv-row"><span class="kv-label">Backend</span><span class="kv-value">Node.js · Express</span></div>
         <div class="kv-row"><span class="kv-label">Base de données</span><span class="kv-value">SQLite (node:sqlite)</span></div>
 
-        <button class="btn btn-ghost" style="max-width:280px; margin-top:22px;" id="logout-btn">Se déconnecter</button>
+        <h2 class="section-title" style="margin-top: 24px;">Sécurité du compte</h2>
+        <div class="field">
+          <label for="profile-current-pass">Mot de passe actuel</label>
+          <input type="password" id="profile-current-pass" autocomplete="current-password">
+        </div>
+        <div class="field">
+          <label for="profile-new-pass">Nouveau mot de passe</label>
+          <input type="password" id="profile-new-pass" placeholder="10 caractères minimum" autocomplete="new-password">
+        </div>
+        <div id="password-error" style="color: var(--alert); font-size: 13px; margin-bottom: 16px; display: none;"></div>
+        <div id="password-success" style="color: var(--safe); font-size: 13px; margin-bottom: 16px; display: none;">Mot de passe mis à jour avec succès. Vos autres sessions ont été déconnectées.</div>
+        <button class="btn btn-primary" style="max-width:280px; margin-bottom: 24px;" id="update-pass-btn">Mettre à jour</button>
+
+        <h2 class="section-title" style="color: var(--alert); border-top: 1px solid var(--border); padding-top: 24px;">Zone de danger</h2>
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">La suppression de votre compte effacera définitivement toutes vos données. Cette action est irréversible.</p>
+        <button class="btn btn-alert" style="max-width:280px;" id="delete-account-btn">Supprimer mon compte</button>
+
+        <button class="btn btn-ghost" style="max-width:280px; margin-top:32px;" id="logout-btn">Se déconnecter</button>
       </section>
 
     </div>

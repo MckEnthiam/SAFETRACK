@@ -16,6 +16,17 @@ const LoginSchema = z.object({
     .max(128, 'mot de passe trop long'),
 });
 
+const RegisterSchema = z.object({
+  nom: z.string({ required_error: 'nom requis' }).min(2, 'nom trop court').max(100),
+  email: z.string({ required_error: 'email requis' }).email('email invalide').max(254),
+  password: z.string({ required_error: 'password requis' }).min(10, 'Le mot de passe doit faire au moins 10 caractères').max(128),
+});
+
+const PasswordUpdateSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(10, 'Le mot de passe doit faire au moins 10 caractères').max(128),
+});
+
 // ---- Trackers ----
 const TypeSignalEnum = z.enum(['GPS', 'Bluetooth']);
 const StatutTrackerEnum = z.enum(['actif', 'inactif']);
@@ -88,6 +99,8 @@ function parseBody(schema, body, res) {
 
 module.exports = {
   LoginSchema,
+  RegisterSchema,
+  PasswordUpdateSchema,
   CreateTrackerSchema,
   UpdateTrackerSchema,
   CreateContactSchema,

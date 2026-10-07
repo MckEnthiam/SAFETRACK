@@ -79,6 +79,65 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
   goTo('login');
 });
 
+// ---- Inscription ----
+document.getElementById('register-btn').addEventListener('click', async () => {
+  const nom = document.getElementById('register-nom').value.trim();
+  const email = document.getElementById('register-email').value.trim();
+  const pass = document.getElementById('register-pass').value.trim();
+  const errDiv = document.getElementById('register-error');
+  errDiv.style.display = 'none';
+
+  try {
+    const btn = document.getElementById('register-btn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Inscription...';
+    btn.disabled = true;
+
+    await Api.register(nom, email, pass);
+    goTo('dashboard');
+
+    btn.textContent = originalText;
+    btn.disabled = false;
+  } catch (err) {
+    errDiv.textContent = err.message;
+    errDiv.style.display = 'block';
+    const btn = document.getElementById('register-btn');
+    btn.textContent = 'S\'inscrire';
+    btn.disabled = false;
+  }
+});
+
+// ---- Profil Sécurité ----
+document.getElementById('update-pass-btn').addEventListener('click', async () => {
+  const current = document.getElementById('profile-current-pass').value;
+  const newPass = document.getElementById('profile-new-pass').value;
+  const errDiv = document.getElementById('password-error');
+  const succDiv = document.getElementById('password-success');
+  errDiv.style.display = 'none';
+  succDiv.style.display = 'none';
+
+  try {
+    await Api.updatePassword(current, newPass);
+    succDiv.style.display = 'block';
+    document.getElementById('profile-current-pass').value = '';
+    document.getElementById('profile-new-pass').value = '';
+  } catch (err) {
+    errDiv.textContent = err.message;
+    errDiv.style.display = 'block';
+  }
+});
+
+document.getElementById('delete-account-btn').addEventListener('click', async () => {
+  if (confirm('Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible.')) {
+    try {
+      await Api.deleteAccount();
+      goTo('login');
+    } catch (e) {
+      alert('Erreur lors de la suppression du compte.');
+    }
+  }
+});
+
 // ---- Trackers ----
 document.getElementById('add-tracker-btn').addEventListener('click', async () => {
   const n = cachedTrackers.length + 1;

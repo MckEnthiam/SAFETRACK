@@ -3,6 +3,7 @@
 
 const titles = {
   login: 'SafeTrack - Connexion',
+  register: 'SafeTrack - Inscription',
   dashboard: 'SafeTrack - Carte',
   trackers: 'SafeTrack - Trackers',
   alerts: 'SafeTrack - Alertes',
@@ -27,7 +28,7 @@ function switchScreen(name) {
     b.classList.toggle('active', b.dataset.screen === actualName)
   );
 
-  const showNav = actualName !== 'login';
+  const showNav = actualName !== 'login' && actualName !== 'register';
   document.getElementById('bottomnav').style.display = showNav ? '' : 'none';
   document.querySelector('.sidebar').style.visibility = showNav ? 'visible' : 'hidden';
 
