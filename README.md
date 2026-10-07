@@ -12,14 +12,14 @@ persistent d'une session à l'autre.
 
 ## Aperçu
 
-- 🔴 Interface au thème rouge, responsive (sidebar sur desktop, barre de
+- Interface au thème rouge, responsive (sidebar sur desktop, barre de
   navigation en bas sur mobile)
-- 📍 Tableau de bord avec vue radar animée et bouton SOS
-- 🛰️ Gestion des trackers (objets et personnes suivis)
-- 🚨 Déclenchement d'alertes (SOS, chute détectée, sortie de zone) avec
+- Tableau de bord avec vue radar animée et bouton SOS
+- Gestion des trackers (objets et personnes suivis)
+- Déclenchement d'alertes (SOS, chute détectée, sortie de zone) avec
   notification automatique des contacts de confiance
-- 👥 Gestion des contacts de confiance
-- 🕓 Historique des positions
+- Gestion des contacts de confiance
+- Historique des positions
 
 ## Stack technique
 
@@ -67,23 +67,44 @@ safetrack/
 
 Prérequis : **Node.js 22.5 ou supérieur** (pour le module `node:sqlite`).
 
+1. Installez les dépendances :
 ```bash
-cd backend
 npm install
+```
+
+2. Générez les secrets d'environnement locaux (crée un fichier `.env`) :
+```bash
+npm run gen:env
+```
+Ce fichier contient les variables de configuration (PORT, NODE_ENV, SESSION_SECRET, DATA_ENCRYPTION_KEY, etc.).
+
+3. (Optionnel) Injectez les données de démonstration :
+```bash
+npm run seed:demo
+```
+
+4. Lancez le serveur :
+```bash
 npm start
+# ou npm run dev pour le développement
 ```
 
 L'application est alors disponible sur **http://localhost:3000** — le
 serveur Express sert à la fois l'API (`/api/...`) et les fichiers du
-frontend, donc une seule commande suffit.
+frontend.
 
-Au premier démarrage, le fichier `backend/safetrack.db` est créé
-automatiquement et pré-rempli avec des données de démonstration (un compte,
-quatre trackers, trois contacts...). Vous pouvez supprimer ce fichier à tout
-moment pour repartir d'une base vierge — il sera régénéré au redémarrage.
+### Scripts npm disponibles
+- `npm start` : Démarre le serveur
+- `npm run dev` : Démarre le serveur avec rechargement automatique
+- `npm run test` : Lance la suite de tests
+- `npm run seed:demo` : Injecte les données de démonstration
+- `npm run gen:env` : Génère le fichier `.env`
 
-Pour le développement, `npm run dev` relance le serveur automatiquement à
-chaque modification d'un fichier backend.
+### Limites connues
+- Pas de fournisseur réel configuré pour les SMS/emails.
+- L'accès GPS et l'enregistrement audio nécessitent HTTPS (ou localhost) et peuvent être limités en arrière-plan selon le navigateur.
+- L'intégration avec des capteurs matériels est purement simulée.
+- Les documents juridiques sont à compléter par un juriste.
 
 ## Accès à la base de données
 

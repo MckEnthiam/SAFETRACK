@@ -70,58 +70,6 @@ db.exec(`
   );
 `);
 
-// ---- Données de démonstration (une seule fois, si la base est vide) ----
-const { count } = db.prepare('SELECT COUNT(*) AS count FROM concernes').get();
-
-if (count === 0) {
-  const insertUser = db.prepare(
-    `INSERT INTO concernes (nom, email, deuxFacteursActif) VALUES (?, ?, 1)`
-  );
-  const userId = Number(
-    insertUser.run('Gaël Blimpo', 'gael.blimpo@safetrack.tg').lastInsertRowid
-  );
-
-  const insertTracker = db.prepare(
-    `INSERT INTO trackers (concerneId, nom, typeSignal, statut, lat, lon) VALUES (?,?,?,?,?,?)`
-  );
-  const trackers = [
-    ['Sac de Gaël', 'Bluetooth', 'actif', 6.1319, 1.2228],
-    ['Moto CBS 125', 'GPS', 'actif', 6.1402, 1.2151],
-    ['Mallette pro', 'GPS', 'actif', 6.1256, 1.2298],
-    ['Vélo enfant', 'Bluetooth', 'inactif', 6.1290, 1.2205],
-  ];
-  const trackerIds = trackers.map(
-    (t) => Number(insertTracker.run(userId, ...t).lastInsertRowid)
-  );
-
-  const insertContact = db.prepare(
-    `INSERT INTO contacts_confiance (concerneId, nom, telephone, statut) VALUES (?,?,?,?)`
-  );
-  const contactIds = [
-    ['Adjoa K.', '+228 90 11 22 33', 'actif'],
-    ['Kokou M.', '+228 91 44 55 66', 'actif'],
-    ['Sœur — Ama', '+228 92 77 88 99', 'en attente'],
-  ].map((c) => Number(insertContact.run(userId, ...c).lastInsertRowid));
-
-  const insertNotif = db.prepare(
-    `INSERT INTO notifications (contactId, type, canal, statut) VALUES (?,?,?,?)`
-  );
-  insertNotif.run(contactIds[0], 'Push', 'App', 'accusée');
-  insertNotif.run(contactIds[1], 'SMS', 'GSM', 'envoyée');
-
-  const insertPos = db.prepare(
-    `INSERT INTO positions (trackerId, lat, lon, precisionM, horodatage) VALUES (?,?,?,?,?)`
-  );
-  [
-    [6.1319, 1.2228, 4, '07:52'],
-    [6.1301, 1.2214, 6, '07:31'],
-    [6.1284, 1.2190, 5, '07:02'],
-    [6.1256, 1.2298, 8, '06:40'],
-  ].forEach(([lat, lon, prec, time]) => {
-    insertPos.run(trackerIds[0], lat, lon, prec, time);
-  });
-
-  console.log('Base de données initialisée avec les données de démonstration.');
-}
+// ---- Données de démonstration extraites vers scripts/seed-demo.js ----
 
 module.exports = db;

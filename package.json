@@ -1,0 +1,19 @@
+{
+  "name": "safetrack",
+  "version": "0.1.0",
+  "description": "SafeTrack — Application de sécurité personnelle (SPA + Express + node:sqlite)",
+  "private": true,
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js",
+    "test": "node --test tests/**/*.test.js",
+    "seed:demo": "node scripts/seed-demo.js",
+    "gen:env": "node scripts/gen-env.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
