@@ -31,11 +31,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       fontSrc: ["'self'"],
-      imgSrc: ["'self'", "data:"],
+      imgSrc: ["'self'", "data:", "https://*.tile.openstreetmap.org"],
       connectSrc: ["'self'"],
+      mediaSrc: ["'self'", "blob:"],
     },
   },
 }));
@@ -110,6 +111,21 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: message });
 });
 
-app.listen(PORT, () => {
-  console.log(`SafeTrack backend prêt : http://localhost:${PORT}`);
-});
+const fs = require('fs');
+const https = require('https');
+const certPath = path.join(__dirname, 'cert.pem');
+const keyPath = path.join(__dirname, 'key.pem');
+
+if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+  const options = {
+    key: fs.readFileSync(keyPath),
+    cert: fs.readFileSync(certPath)
+  };
+  https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
+    console.log(`SafeTrack backend prêt (HTTPS) : https://localhost:${PORT}`);
+  });
+} else {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`SafeTrack backend prêt (HTTP) : http://localhost:${PORT}`);
+  });
+}
