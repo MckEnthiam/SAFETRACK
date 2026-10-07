@@ -1,9 +1,11 @@
 // routes/alerts.js — CRUD pour l'entité Alerte.
 // La création d'une alerte génère automatiquement une Notification vers le
-// premier contact de confiance actif (simulation simplifiée du dossier
-// d'analyse : diffusion aux contacts de confiance lors d'une alerte).
+// premier contact de confiance actif (simulation simplifiée).
+'use strict';
+
 const express = require('express');
 const db = require('../db');
+const { CreateAlerteSchema, parseBody } = require('../schemas');
 
 const router = express.Router();
 
@@ -21,14 +23,12 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  const { type, mode = 'Manuel', trackerId = null } = req.body;
-  if (!type) return res.status(400).json({ error: 'type est requis' });
+  const data = parseBody(CreateAlerteSchema, req.body, res);
+  if (!data) return;
 
   const info = db
-    .prepare(
-      `INSERT INTO alertes (concerneId, trackerId, type, mode) VALUES (?,?,?,?)`
-    )
-    .run(req.userId, trackerId, type, mode);
+    .prepare(`INSERT INTO alertes (concerneId, trackerId, type, mode) VALUES (?,?,?,?)`)
+    .run(req.userId, data.trackerId, data.type, data.mode);
   const alerteId = Number(info.lastInsertRowid);
 
   // Notifie le premier contact actif trouvé (canal Push par défaut, Appel pour un SOS)
@@ -36,7 +36,7 @@ router.post('/', (req, res) => {
     .prepare(`SELECT * FROM contacts_confiance WHERE statut = 'actif' AND concerneId = ? ORDER BY id LIMIT 1`)
     .get(req.userId);
   if (contact) {
-    const notifType = type === 'SOS' ? 'Appel' : 'Push';
+    const notifType = data.type === 'SOS' ? 'Appel' : 'Push';
     const canal = notifType === 'Appel' ? 'GSM' : 'App';
     db.prepare(
       `INSERT INTO notifications (alerteId, contactId, type, canal, statut) VALUES (?,?,?,?, 'envoyée')`

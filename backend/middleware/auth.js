@@ -3,13 +3,20 @@ const db = require('../db');
 function requireAuth(req, res, next) {
   let sessionId = null;
 
-  // Récupération depuis le header Authorization (Bearer <token>)
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    sessionId = authHeader.substring(7);
+  // Priorité 1 : cookie-parser (httpOnly cookie)
+  if (req.cookies && req.cookies.sessionId) {
+    sessionId = req.cookies.sessionId;
   }
 
-  // Si pas de header, on cherche dans les cookies (pour le front web)
+  // Priorité 2 : header Authorization: Bearer <token>
+  if (!sessionId) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      sessionId = authHeader.substring(7);
+    }
+  }
+
+  // Priorité 3 : parsing manuel (si cookie-parser non monté)
   if (!sessionId && req.headers.cookie) {
     const cookies = req.headers.cookie.split(';');
     for (let cookie of cookies) {

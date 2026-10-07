@@ -1,6 +1,10 @@
 // routes/positions.js — CRUD (lecture + ajout) pour l'entité Position
+// GET /api/positions?trackerId=1 — historique, du plus récent au plus ancien
+'use strict';
+
 const express = require('express');
 const db = require('../db');
+const { CreatePositionSchema, parseBody } = require('../schemas');
 
 const router = express.Router();
 
@@ -14,27 +18,28 @@ router.get('/', (req, res) => {
   res.json(rows);
 });
 
+// POST /api/positions — enregistrer un nouveau point (simulateur GPS, app mobile...)
 router.post('/', (req, res) => {
-  const { trackerId, lat, lon, precisionM = 5 } = req.body;
-  if (!trackerId || lat === undefined || lon === undefined) {
-    return res.status(400).json({ error: 'trackerId, lat et lon sont requis' });
-  }
+  const data = parseBody(CreatePositionSchema, req.body, res);
+  if (!data) return;
 
-  const tracker = db.prepare('SELECT id FROM trackers WHERE id = ? AND concerneId = ?').get(trackerId, req.userId);
+  const tracker = db.prepare('SELECT id FROM trackers WHERE id = ? AND concerneId = ?').get(data.trackerId, req.userId);
   if (!tracker) {
     return res.status(403).json({ error: 'Tracker non autorisé' });
   }
+
   const info = db
     .prepare(
       `INSERT INTO positions (trackerId, lat, lon, precisionM, horodatage)
-       VALUES (?, ?, ?, ?, strftime('%H:%M','now'))`
+       VALUES (?, ?, ?, ?, datetime('now'))`
     )
-    .run(trackerId, lat, lon, precisionM);
+    .run(data.trackerId, data.lat, data.lon, data.precisionM);
 
-  db.prepare(`UPDATE trackers SET lat=?, lon=?, majLe=datetime('now') WHERE id=?`).run(
-    lat,
-    lon,
-    trackerId
+  db.prepare(`UPDATE trackers SET lat=?, lon=?, majLe=datetime('now') WHERE id=? AND concerneId=?`).run(
+    data.lat,
+    data.lon,
+    data.trackerId,
+    req.userId
   );
 
   res
