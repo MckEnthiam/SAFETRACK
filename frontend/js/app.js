@@ -46,8 +46,38 @@ async function onEnterHistory() {
 }
 
 // ---- Connexion ----
-document.getElementById('login-btn').addEventListener('click', () => goTo('dashboard'));
-document.getElementById('logout-btn').addEventListener('click', () => goTo('login'));
+document.getElementById('login-btn').addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value.trim();
+  const errDiv = document.getElementById('login-error');
+  errDiv.style.display = 'none';
+
+  try {
+    const btn = document.getElementById('login-btn');
+    const originalText = btn.textContent;
+    btn.textContent = 'Connexion...';
+    btn.disabled = true;
+
+    await Api.login(email, pass);
+    goTo('dashboard');
+
+    btn.textContent = originalText;
+    btn.disabled = false;
+  } catch (err) {
+    errDiv.textContent = err.message;
+    errDiv.style.display = 'block';
+    const btn = document.getElementById('login-btn');
+    btn.textContent = 'Se connecter';
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  try {
+    await Api.logout();
+  } catch (e) {}
+  goTo('login');
+});
 
 // ---- Trackers ----
 document.getElementById('add-tracker-btn').addEventListener('click', async () => {

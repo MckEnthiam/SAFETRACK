@@ -16,6 +16,9 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nom TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
+    motDePasseHash TEXT NOT NULL,
+    sel TEXT NOT NULL,
+    sessionId TEXT,
     deuxFacteursActif INTEGER NOT NULL DEFAULT 1,
     creeLe TEXT NOT NULL DEFAULT (datetime('now'))
   );

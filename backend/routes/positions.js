@@ -4,22 +4,25 @@ const db = require('../db');
 
 const router = express.Router();
 
-// GET /api/positions?trackerId=1 — historique, du plus récent au plus ancien
 router.get('/', (req, res) => {
   const { trackerId } = req.query;
   const rows = trackerId
     ? db
-        .prepare('SELECT * FROM positions WHERE trackerId = ? ORDER BY id DESC LIMIT 50')
-        .all(trackerId)
-    : db.prepare('SELECT * FROM positions ORDER BY id DESC LIMIT 50').all();
+        .prepare('SELECT p.* FROM positions p JOIN trackers t ON t.id = p.trackerId WHERE p.trackerId = ? AND t.concerneId = ? ORDER BY p.id DESC LIMIT 50')
+        .all(trackerId, req.userId)
+    : db.prepare('SELECT p.* FROM positions p JOIN trackers t ON t.id = p.trackerId WHERE t.concerneId = ? ORDER BY p.id DESC LIMIT 50').all(req.userId);
   res.json(rows);
 });
 
-// POST /api/positions — enregistrer un nouveau point (simulateur GPS, app mobile...)
 router.post('/', (req, res) => {
   const { trackerId, lat, lon, precisionM = 5 } = req.body;
   if (!trackerId || lat === undefined || lon === undefined) {
     return res.status(400).json({ error: 'trackerId, lat et lon sont requis' });
+  }
+
+  const tracker = db.prepare('SELECT id FROM trackers WHERE id = ? AND concerneId = ?').get(trackerId, req.userId);
+  if (!tracker) {
+    return res.status(403).json({ error: 'Tracker non autorisé' });
   }
   const info = db
     .prepare(

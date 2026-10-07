@@ -8,8 +8,13 @@ const Api = (() => {
   async function request(path, options = {}) {
     const res = await fetch(BASE + path, {
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
       ...options,
     });
+    if (res.status === 401) {
+      window.location.hash = 'login';
+      throw new Error('Session expirée');
+    }
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || `Erreur API (${res.status})`);
@@ -19,6 +24,11 @@ const Api = (() => {
   }
 
   return {
+    // Auth
+    login: (email, password) => request('/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+    logout: () => request('/logout', { method: 'POST' }),
+    getMe: () => request('/me'),
+
     // Trackers
     getTrackers: () => request('/trackers'),
     createTracker: (data) => request('/trackers', { method: 'POST', body: JSON.stringify(data) }),

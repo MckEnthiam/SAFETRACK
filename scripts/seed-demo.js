@@ -22,11 +22,17 @@ if (count > 0) {
   process.exit(0);
 }
 
+const crypto = require('node:crypto');
+
+const password = 'demo';
+const salt = crypto.randomBytes(16).toString('hex');
+const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+
 const insertUser = db.prepare(
-  `INSERT INTO concernes (nom, email, deuxFacteursActif) VALUES (?, ?, ?)`
+  `INSERT INTO concernes (nom, email, motDePasseHash, sel, deuxFacteursActif) VALUES (?, ?, ?, ?, ?)`
 );
 const userId = Number(
-  insertUser.run('Gaël Blimpo', 'gael.blimpo@safetrack.tg', 1).lastInsertRowid
+  insertUser.run('Gaël Blimpo', 'gael.blimpo@safetrack.tg', hash, salt, 1).lastInsertRowid
 );
 
 const insertTracker = db.prepare(
@@ -70,4 +76,4 @@ const insertPos = db.prepare(
 });
 
 console.log('[seed-demo] Données de démonstration injectées (utilisateur ID', userId, ').');
-console.log('[seed-demo] Note : le mot de passe de démo n\'est pas valide — utilisez la vraie auth.');
+console.log('[seed-demo] Email: gael.blimpo@safetrack.tg | Mot de passe: demo');
