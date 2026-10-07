@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SafeTrack</title>
 <link rel="icon" href="assets/logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -79,22 +78,11 @@
 
             <div class="field">
               <label for="login-email">Adresse email</label>
-              <input type="email" id="login-email" placeholder="vous@exemple.com" value="gael.blimpo@safetrack.tg">
+              <input type="email" id="login-email" placeholder="vous@exemple.com" autocomplete="email">
             </div>
             <div class="field">
               <label for="login-pass">Mot de passe</label>
-              <input type="password" id="login-pass" placeholder="••••••••" value="••••••••">
-            </div>
-
-            <div class="toggle-row">
-              <div>
-                <div class="toggle-label">Authentification à deux facteurs</div>
-                <div class="toggle-sub">Recommandée pour ce compte</div>
-              </div>
-              <label class="switch">
-                <input type="checkbox" id="twofa-toggle" checked>
-                <span class="track"></span>
-              </label>
+              <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
             </div>
 
             <button class="btn btn-primary" id="login-btn">Se connecter</button>
@@ -121,11 +109,7 @@
               </svg>
               <div class="radar-crosshair"></div>
               <div class="radar-crosshair v"></div>
-              <div class="radar-sweep"></div>
               <div class="radar-you"></div>
-              <div class="radar-blip" style="top:32%; left:64%; color:var(--brand);"></div>
-              <div class="radar-blip" style="top:68%; left:38%; color:var(--brand);"></div>
-              <div class="radar-blip" style="top:58%; left:74%; color:var(--amber);"></div>
               <div class="radar-readout" id="radar-readout">
                 <span class="rlabel">LAT</span> --.---- &nbsp; <span class="rlabel">LON</span> --.----<br>
                 <span class="rlabel">PRÉCISION</span> ±-- m
@@ -162,7 +146,7 @@
           <span class="eyebrow">Objets &amp; personnes</span>
           <h1 class="title">Trackers</h1>
         </div>
-        <div class="add-row"><div class="fab-mini" id="add-tracker-btn">+ Ajouter un tracker</div></div>
+        <div class="add-row"><button class="fab-mini" id="add-tracker-btn">+ Ajouter un tracker</button></div>
         <div class="card-list" id="trackers-list"></div>
       </section>
 
@@ -190,7 +174,7 @@
           <span class="eyebrow">Réseau de confiance</span>
           <h1 class="title">Contacts</h1>
         </div>
-        <div class="add-row"><div class="fab-mini" id="add-contact-btn">+ Ajouter un contact</div></div>
+        <div class="add-row"><button class="fab-mini" id="add-contact-btn">+ Ajouter un contact</button></div>
         <div class="card-list" id="contacts-list"></div>
 
         <h2 class="section-title">Notifications envoyées</h2>
@@ -218,20 +202,17 @@
           <div class="profile-email">gael.blimpo@safetrack.tg</div>
         </div>
 
-        <h2 class="section-title">Sécurité</h2>
+        <h2 class="section-title">Apparence</h2>
         <div class="toggle-row">
           <div>
-            <div class="toggle-label">Authentification à deux facteurs</div>
-            <div class="toggle-sub">deuxFacteursActif</div>
+            <div class="toggle-label" id="theme-label">Thème sombre</div>
+            <div class="toggle-sub">Basculer entre les modes clair et sombre</div>
           </div>
           <label class="switch">
-            <input type="checkbox" checked>
+            <input type="checkbox" id="theme-toggle" aria-labelledby="theme-label">
             <span class="track"></span>
           </label>
         </div>
-        <div class="kv-row"><span class="kv-label">Algorithme de chiffrement</span><span class="kv-value">AES-256</span></div>
-        <div class="kv-row"><span class="kv-label">Longueur de clé</span><span class="kv-value">256 bits</span></div>
-        <div class="kv-row"><span class="kv-label">Vecteur d'initialisation</span><span class="kv-value">a13f9c…</span></div>
 
         <h2 class="section-title">À propos</h2>
         <div class="kv-row"><span class="kv-label">Frontend</span><span class="kv-value">HTML / CSS / JS (statique)</span></div>
@@ -243,7 +224,7 @@
 
     </div>
 
-    <div class="toast" id="toast">
+    <div class="toast" id="toast" role="status" aria-live="polite">
       <div class="card-icon icon-alert" style="width:30px;height:30px;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86l-8.18 14.14A1.5 1.5 0 003.5 20h17a1.5 1.5 0 001.39-2L13.71 3.86a1.5 1.5 0 00-2.42 0z"/></svg>
       </div>

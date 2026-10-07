@@ -106,6 +106,65 @@ setInterval(() => {
   }
 }, 2600);
 
-// ---- État initial ----
-document.getElementById('bottomnav').style.display = 'none';
-document.querySelector('.sidebar').style.visibility = 'hidden';
+// ---- Thème clair / sombre ----
+const themeToggle = document.getElementById('theme-toggle');
+
+function applyTheme(isDark) {
+  if (isDark) {
+    document.body.classList.add('dark-theme');
+  } else {
+    document.body.classList.remove('dark-theme');
+  }
+  if (themeToggle) themeToggle.checked = isDark;
+}
+
+try {
+  const savedTheme = localStorage.getItem('safetrack-theme');
+  applyTheme(savedTheme === 'dark');
+} catch (e) {
+  console.warn('Impossible de lire le thème dans localStorage');
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener('change', (e) => {
+    const isDark = e.target.checked;
+    applyTheme(isDark);
+    try {
+      localStorage.setItem('safetrack-theme', isDark ? 'dark' : 'light');
+    } catch (err) {}
+  });
+}
+
+// ---- Animations d'entrée (IntersectionObserver) ----
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in-view');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -20px 0px' });
+
+function observeElements() {
+  document.querySelectorAll('.card, .section-title, .dash-side, .timeline .tl-item').forEach(el => {
+    if (!el.classList.contains('in-view')) observer.observe(el);
+  });
+}
+
+// Relancer l'observation quand le DOM change
+const originalRenderDashboardFeed = renderDashboardFeed;
+renderDashboardFeed = function() { originalRenderDashboardFeed.apply(this, arguments); observeElements(); };
+const originalRenderTrackers = renderTrackers;
+renderTrackers = function() { originalRenderTrackers.apply(this, arguments); observeElements(); };
+const originalRenderAlerts = renderAlerts;
+renderAlerts = function() { originalRenderAlerts.apply(this, arguments); observeElements(); };
+const originalRenderContacts = renderContacts;
+renderContacts = function() { originalRenderContacts.apply(this, arguments); observeElements(); };
+const originalRenderNotifications = renderNotifications;
+renderNotifications = function() { originalRenderNotifications.apply(this, arguments); observeElements(); };
+const originalRenderHistory = renderHistory;
+renderHistory = function() { originalRenderHistory.apply(this, arguments); observeElements(); };
+
+window.addEventListener('DOMContentLoaded', observeElements);
+
+
