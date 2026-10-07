@@ -1,0 +1,4 @@
+node_modules/
+safetrack.db
+*.log
+.DS_Store

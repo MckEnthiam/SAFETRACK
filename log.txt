@@ -1,0 +1,385 @@
+================================================================================
+RAPPORT D'AUDIT TECHNIQUE - SafeTrack
+================================================================================
+Date          : 2026-10-07T10:22:00Z
+Dossier       : c:\Users\Claire\Desktop\SAFETRACK(1)\SAFETRACK
+Stack detectee: Web SPA (HTML/CSS/JS vanilla) + Backend Node.js/Express + SQLite
+                Aucun framework front (pas de React, Vue, Angular, Flutter).
+                Base de donnees : node:sqlite (module natif Node >= 22.5).
+Commit courant: NON APPLICABLE - depot git inexistant (fatal: not a git repository)
+Auditeur      : analyse statique + execution de commandes (lecture seule)
+
+================================================================================
+1. RESUME (15 lignes max)
+================================================================================
+Le projet est une application web full-stack (pas mobile natif) servant de
+prototype fonctionnel pour SafeTrack. Il comprend deux variantes : une maquette
+statique monofichier (safetrack-app.html, 899 lignes, donnees en dur) et une
+version "connectee" (frontend/ + backend/) censee consommer une vraie API REST.
+
+PROBLEME BLOQUANT (CRITIQUE) : le backend ne demarre pas. Il exige Node >= 22.5
+pour le module natif node:sqlite, mais Node v20.19.0 est installe. Resultat :
+l'application complete est inutilisable en l'etat sur cette machine.
+
+Cote fonctionnel, les besoins B1 (alerte 1 geste) et B4 (CRUD contacts) sont
+partiellement cables via l'API. En revanche B2 (GPS reel), B3 (audio), B5
+(carte SDK), B7 (acces autorites) et B8 (chiffrement, auth reelle) sont absents
+ou purement simules/affiches. Le profil affiche "deuxFacteursActif" en clair
+(texte de developpeur visible dans l'UI). Aucun systeme git, aucun test, aucune
+CI, 4 vulnerabilites npm (1 critique, 3 moderees). Interface en theme sombre
+par defaut (violation regle design : theme clair requis au premier lancement).
+
+================================================================================
+2. TABLEAU DE BORD
+================================================================================
+
+IDENTIFIANT  STATUT    SEVERITE   DESCRIPTION COURTE
+-----------  -------   ---------  ------------------------------------------------
+ENV-01       KO        CRITIQUE   Node v20.19.0 installe, projet exige >= 22.5.0
+ENV-02       KO        MAJEUR     Aucun depot git (pas de .git), pas d'historique
+ENV-03       KO        MINEUR     Pas de .env.example, pas de CI, pas de tests
+ENV-04       OK        -          README present et documente
+ENV-05       KO        MINEUR     .gitignore ignore *.log (bloquera log.txt si git ajoute)
+ENV-06       KO        MAJEUR     safetrack-app.html (maquette statique) a la racine,
+                                  role ambigu, donnees en dur, doublon du frontend/
+BLD-01       KO        CRITIQUE   npm start echoue : ERR_UNKNOWN_BUILTIN_MODULE node:sqlite
+BLD-02       KO        CRITIQUE   1 vulnerabilite critique (proxy-addr, IP spoofing)
+BLD-03       KO        MAJEUR     3 vulnerabilites moderees (qs, body-parser, express)
+BLD-04       OK        -          npm install reussit (avec warning moteur Node)
+BLD-05       N/A       -          Pas de build front (statique pur, pas de bundler)
+BLD-06       N/A       -          Pas de lint configure
+BLD-07       N/A       -          Pas de tests (aucun fichier test.*, spec.*, jest.config...)
+B1           PARTIEL   MAJEUR     Bouton SOS 1 clic -> appel API reel ; mais pas de mode
+                                  urgence persistant (etat global non modifie dans l'app)
+B2           MAQUETTE  CRITIQUE   Aucun appel navigator.geolocation. Coordonnees simulees
+                                  par jitter aleatoire (render.js:114-116). Pas d'envoi
+                                  reel aux contacts. Permissions GPS non declarees.
+B3           ABSENT    CRITIQUE   Aucune API MediaRecorder / getUserMedia. Pas d'audio.
+B4           PARTIEL   MAJEUR     CRUD contacts persiste en DB (reel). Mais : pas de
+                                  selection par contact de ce qu'il recoit (alerte /
+                                  position / preuves). Formulaire d'ajout cree un contact
+                                  avec nom generique hardcode (app.js:90).
+B5           MAQUETTE  CRITIQUE   Aucun SDK cartographique reel (pas de Leaflet, Mapbox,
+                                  Google Maps). Radar SVG anime sans donnees GPS reelles.
+                                  Pas de detection de deplacement suspect.
+B6           PARTIEL   MAJEUR     Historique des positions persiste en DB. Mais lie
+                                  uniquement aux trackers, pas aux alertes. Pas de preuves
+                                  (audio/photo) associees aux entrees.
+B7           ABSENT    CRITIQUE   Aucun mecanisme d'export, role autorites, lien securise.
+                                  Aucune tracabilite d'acces aux donnees.
+B8           ABSENT    CRITIQUE   Aucun chiffrement au repos (SQLite en clair). Aucun
+                                  chiffrement en transit (HTTP uniquement, pas de HTTPS).
+                                  Aucune authentification reelle : le login (app.js:49)
+                                  redirige vers dashboard sans verification. Mot de passe
+                                  visible en clair dans le champ HTML (value="********").
+                                  Aucun Keychain/Keystore/SecureStore.
+C1-01        N/A       -          Pas de deploiement cloud detecte (pas de vercel.json,
+                                  netlify.toml, Dockerfile, etc.)
+C2-01        KO        MINEUR     Pas de meta description, pas de og:, pas de canonical
+C2-02        OK        -          lang="fr" present (index.html:2)
+C2-03        KO        MINEUR     Favicon defini (logo.png) mais pas de manifest PWA,
+                                  pas d'icones multi-resolutions
+C2-04        KO        MINEUR     Plusieurs <h1> possibles (1 par ecran affiche/cache) ;
+                                  structurellement tolerable (1 visible a la fois)
+C3-01        ABSENT    MINEUR     Pas de robots.txt, pas de llms.txt
+C4-01        OK        -          Pas de sourcemaps exposes (pas de bundler)
+C4-02        KO        MINEUR     "deuxFacteursActif" affiche tel quel dans l'UI (cle
+                                  technique visible par l'utilisateur) - index.html:225
+C4-03        OK        -          Pas de console.log dans le code source front
+C4-04        OK        -          Pas d'URL localhost en dur dans le front (BASE='/api')
+C4-05        KO        MINEUR     Coordonnees de demonstration (Lome, Togo) hardcodees
+                                  dans db.js:88-91 - chargees en DB a chaque reset
+C5-01        KO        MAJEUR     Theme sombre par defaut (--bg:#0B0708). Regle design :
+                                  theme clair requis au premier lancement.
+C5-02        KO        MINEUR     Effets glow (box-shadow lumineux 0 0 N px couleur) :
+                                  style.css:180, :193, :199 (radar-you, dot, sos-btn)
+C5-03        OK        -          Aucune bordure dashed/dotted trouvee
+C5-04        OK        -          Aucun emoji dans le code source (README en a, pas l'UI)
+C5-05        KO        MINEUR     Badge "SUIVI ACTIF" (index.html:116) affiche en
+                                  permanence meme sans GPS reel - pastille "live" injustifiee
+C5-06        PARTIEL   MINEUR     Pas de labels aria sur les inputs de la sidebar nav,
+                                  tailles tactiles correctes (>= 44px pour boutons nav)
+C6-01        KO        CRITIQUE   Aucune authentification sur les routes API : toute
+                                  requete a /api/trackers, /api/contacts, /api/alerts
+                                  fonctionne sans token (server.js:20-24)
+C6-02        KO        MAJEUR     Aucune validation de schema (pas de zod/joi/yup) :
+                                  validations minimales uniquement (presence de champ)
+C6-03        KO        MAJEUR     Aucun rate limiting sur aucune route
+C6-04        KO        MAJEUR     CORS non configure : Express en mode defaut, pas de
+                                  liste blanche d'origines
+C6-05        OK        -          Aucune cle secrete en dur dans le code source projet
+                                  (node_modules exclus de la verification)
+C6-06        KO        CRITIQUE   concerneId hardcode a 1 dans tous les endpoints POST
+                                  (alerts.js:23, contacts.js:12, trackers.js:15) : isolation
+                                  multi-utilisateur inexistante
+C6-07        KO        MAJEUR     HTTP uniquement, pas de HTTPS force
+C7-01        ABSENT    MAJEUR     Pas de CGU
+C7-02        ABSENT    MAJEUR     Pas de politique de confidentialite
+C7-03        ABSENT    CRITIQUE   Pas d'ecran de consentement pour la geolocalisation
+                                  (RGPD/loi applicable obligatoire)
+C7-04        ABSENT    CRITIQUE   Pas d'ecran de consentement pour le microphone (B3 absent,
+                                  mais a prevoir)
+C7-05        ABSENT    MAJEUR     Pas de possibilite de suppression des donnees utilisateur
+DSG-01       KO        MAJEUR     Interface en theme sombre par defaut (--bg:#0B0708) ;
+                                  aucune alternative claire au premier lancement
+DSG-02       KO        MINEUR     Effets glow lumineux presents : style.css:180
+                                  (box-shadow:0 0 12px var(--brand)), :193
+                                  (box-shadow:0 0 6px var(--safe)), :199
+                                  (box-shadow:0 4px 18px #ff4d3d66)
+DSG-03       OK        -          Aucune bordure dashed/dotted dans le CSS
+DSG-04       OK        -          Aucun emoji dans le code UI (les emojis du README
+                                  n'apparaissent pas dans l'interface rendue)
+DSG-05       KO        MINEUR     Texte technique "deuxFacteursActif" visible dans l'UI
+                                  (index.html:225) - annotation de developpeur non remplacee
+
+================================================================================
+3. DETAIL DES POINTS NON OK
+================================================================================
+
+--- ENV-01 / BLD-01 (CRITIQUE) ---
+Constat : Node.js v20.19.0 installe sur la machine. Le module node:sqlite est
+          disponible uniquement a partir de Node 22.5.0. Le projet le declare
+          explicitement (package.json:11 : "node": ">=22.5.0").
+Preuve   : commande `node server.js` -> ERR_UNKNOWN_BUILTIN_MODULE: node:sqlite
+           (db.js:6 : const { DatabaseSync } = require('node:sqlite'))
+Impact   : Le backend ne demarre pas. Toute l'API est inaccessible. L'application
+           complete est non fonctionnelle sur cette machine.
+
+--- ENV-02 (MAJEUR) ---
+Constat : Aucun repertoire .git a la racine du projet.
+Preuve   : `git log` -> "fatal: not a git repository"
+Impact   : Aucun historique de version, aucune tracabilite des modifications.
+
+--- ENV-05 (MINEUR) ---
+Constat : .gitignore ligne 3 : "*.log" - si git est initialise, log.txt
+          sera ignore par defaut.
+Preuve   : .gitignore:3
+Impact   : Le fichier log.txt cree par cet audit ne serait pas versionne.
+
+--- ENV-06 (MAJEUR) ---
+Constat : safetrack-app.html (188 Ko, 899 lignes) a la racine est une maquette
+          statique anterieure avec donnees mockees en dur (pas d'appel API).
+          Il coexiste avec le frontend/ connecte sans documentation claire
+          sur lequel est la version de reference.
+Preuve   : safetrack-app.html:1-50 - CSS inline, pas d'appel fetch
+Impact   : Confusion sur l'etat reel du projet. Risque de travailler sur la
+           mauvaise version.
+
+--- BLD-02/03 (CRITIQUE/MAJEUR) ---
+Constat : npm audit signale 4 vulnerabilites dans les dependances d'Express 4.19.2.
+          - proxy-addr <= 2.0.7 : CRITIQUE - IP spoofing (GHSA-jqcg-44mw-7w3h)
+          - qs <= 6.15.3 : MODERE - array-limit bypass, DoS (2 CVE)
+          - body-parser 1.20.5-1.20.6 : MODERE - depend de qs vulnerable
+Preuve   : `npm audit` (sortie complete ci-dessus)
+Impact   : Risque d'usurpation d'IP source. Risque de DoS par payloads malformes.
+
+--- B1 (PARTIEL/MAJEUR) ---
+Constat : Le bouton SOS (index.html:133) declenche en 1 clic un appel POST
+          /api/alerts (app.js:80-86) - c'est reel. Mais aucun "mode urgence"
+          persistant : l'etat de l'app n'est pas modifie (pas de variable
+          globale d'etat, pas d'UI differente, pas d'ecran de suivi dedie).
+          Le toast (3,2 s) est la seule consequence visible.
+Preuve   : app.js:80-86 - pas de changement d'etat apres createAlert()
+Impact   : L'utilisateur ne sait pas visuellement si l'alerte est toujours
+           active. Pas de passage en "mode urgence" selon B1.
+
+--- B2 (MAQUETTE/CRITIQUE) ---
+Constat : Aucun appel a navigator.geolocation dans tout le code frontend.
+          La fonction updateRadarReadout() (render.js:112-119) simule des
+          coordonnees par jitter aleatoire (Math.random()) a partir des donnees
+          SQLite du premier tracker. Aucun envoi aux contacts (SMS, push, email,
+          WebSocket non implemente).
+Preuve   : render.js:114-116 - jitterLat = tracker.lat + (Math.random()-0.5)*0.0006
+           grep navigator.geolocation -> aucun resultat
+Impact   : La localisation est entierement fictive. Les contacts ne recoivent
+           rien en temps reel (B2 non conforme au cahier des charges).
+
+--- B3 (ABSENT/CRITIQUE) ---
+Constat : Aucun appel a MediaRecorder, getUserMedia ou equivalent dans tout
+          le code frontend. Aucune route backend pour recevoir/stocker de l'audio.
+Preuve   : grep MediaRecorder, getUserMedia -> aucun resultat
+Impact   : L'enregistrement audio automatique (B3) est entierement absent.
+
+--- B4 (PARTIEL/MAJEUR) ---
+Constat : CRUD contacts fonctionnel en DB (contacts.js CRUD complet). Mais :
+          1) Le bouton "+ Ajouter un contact" cree un contact avec le nom
+             "Nouveau contact" et un numero factice hardcode (app.js:90) sans
+             formulaire de saisie.
+          2) La table contacts_confiance n'a pas de colonnes pour choisir
+             quelles notifications chaque contact recoit (alerte, position,
+             preuves) - structure DB limitee.
+Preuve   : app.js:90, db.js:34-41 (schema contacts_confiance sans colonne
+           "permissions")
+Impact   : Impossible de configurer finement les droits par contact (B4 partiel).
+
+--- B5 (MAQUETTE/CRITIQUE) ---
+Constat : Aucun SDK cartographique (Leaflet, Google Maps, Mapbox, OpenStreetMap)
+          integre. Le "radar" est un SVG decoratif avec des blips positionnes
+          en dur (index.html:126-128 : style="top:32%; left:64%"). Aucune logique
+          de detection de deplacement suspect.
+Preuve   : index.html:117-128, grep Leaflet/mapbox -> aucun resultat
+Impact   : La carte de localisation des objets (B5) est entierement factice.
+
+--- B6 (PARTIEL/MAJEUR) ---
+Constat : Table positions persistee en SQLite, accessible via GET /api/positions.
+          L'historique affiche lat/lon/precision/horodatage. Mais : les alertes
+          et les positions ne sont pas liees dans l'historique (positions liees
+          aux trackers, pas aux alertes). Pas de preuves (audio, photo) associees.
+Preuve   : db.js:63-70 (positions), db.js:43-51 (alertes) - pas de FK position->alerte
+Impact   : Historique partiel, sans preuve ni lien direct alerte<->localisation.
+
+--- B7 (ABSENT/CRITIQUE) ---
+Constat : Aucune route API dediee aux autorites. Pas d'export de donnees, pas
+          de role "autorite", pas de lien temporaire securise, pas de journal
+          d'acces.
+Preuve   : routes/ - 5 fichiers, aucun ne mentionne "autorite" ou "export"
+Impact   : Le besoin legal B7 est totalement non implemente.
+
+--- B8 (ABSENT/CRITIQUE) ---
+Constat : 1) Pas de HTTPS : serveur Express en HTTP pur (server.js:58).
+          2) Aucun chiffrement au repos : SQLite non chiffre (db.js:10).
+          3) Login purement visuel : app.js:49 -> addEventListener('click',
+             () => goTo('dashboard')) - aucune verification cote serveur.
+          4) Le champ mot de passe a une valeur preremplie visuelle (index.html:86)
+             mais sans authentification reelle.
+          5) Le profil affiche "AES-256" et un "vecteur d'initialisation a13f9c..."
+             (index.html:232-234) affiches statiquement, sans chiffrement reel.
+          6) Aucune gestion de session, JWT, cookies securises.
+Preuve   : app.js:49, server.js:58, index.html:86, :232-234
+Impact   : Donnees entierement non protegees. Toute l'API est accessible sans
+           authentification. Violation grave de B8.
+
+--- C4-02 (MINEUR) ---
+Constat : Le sous-titre "deuxFacteursActif" est affiche verbatim dans l'UI
+          (ecran Profil & securite), c'est le nom de la colonne SQL, non traduit.
+Preuve   : index.html:225
+Impact   : Experience utilisateur degradee, annotation technique visible.
+
+--- C5-01 / DSG-01 (MAJEUR) ---
+Constat : Theme sombre impose des le chargement (--bg:#0B0708 sombre profond).
+          Aucune media query prefers-color-scheme:light, aucun toggle.
+Preuve   : style.css:1-3
+Impact   : Violation de la regle design "interface claire par defaut".
+
+--- C5-02 / DSG-02 (MINEUR) ---
+Constat : 3 effets glow lumineux identifies :
+          - .radar-you (style.css:180) : box-shadow:0 0 12px var(--brand)
+          - .radar-badge .dot (style.css:193) : box-shadow:0 0 6px var(--safe)
+          - .sos-btn (style.css:199) : box-shadow:0 4px 18px #ff4d3d66
+          + animation @keyframes pulseblip (style.css:172-176) via box-shadow
+Preuve   : style.css:180, 193, 199, 172-176
+Impact   : Violation de la regle "aucun effet glow".
+
+--- C5-05 (MINEUR) ---
+Constat : Le badge "SUIVI ACTIF" avec pastille verte animee (index.html:116)
+          est toujours visible sur le dashboard, meme sans GPS actif.
+Preuve   : index.html:116, aucun code JS ne conditionne sa visibilite
+Impact   : Information mensongere sur l'etat du systeme.
+
+--- C6-01 (CRITIQUE) ---
+Constat : Aucun middleware d'authentification sur aucune route API.
+          Toute requete HTTP a /api/trackers, /api/contacts, /api/alerts,
+          /api/notifications, /api/positions est executee sans verification.
+Preuve   : server.js:20-24 - app.use('/api/...', router) sans middleware auth
+Impact   : N'importe quel acces reseau permet de lire, creer, modifier ou
+           supprimer toutes les donnees de tous les utilisateurs.
+
+--- C6-02 (MAJEUR) ---
+Constat : Validation d'inputs minimale : verification de presence uniquement.
+          Aucune validation de format, de longueur, de type de donnees.
+          Pas de schema zod/joi/yup/pydantic.
+Preuve   : routes/*.js - pas d'import de librairie de validation
+Impact   : Risque XSS stocke possible via innerHTML dans render.js.
+
+--- C6-03 (MAJEUR) ---
+Constat : Aucun middleware de rate limiting (pas de express-rate-limit).
+Preuve   : server.js - grep rate-limit -> aucun resultat
+Impact   : Vulnerable aux attaques par force brute et aux abus d'API.
+
+--- C6-04 (MAJEUR) ---
+Constat : CORS non configure explicitement dans server.js.
+Preuve   : server.js - pas d'import de 'cors', pas de app.use(cors(...))
+Impact   : Pas de protection origin pour les integrations futures.
+
+--- C6-06 (CRITIQUE) ---
+Constat : concerneId est hardcode a 1 dans tous les endpoints de creation :
+          alerts.js:23, contacts.js:12, trackers.js:15.
+          Toutes les donnees appartiennent toujours a l'utilisateur ID=1.
+Preuve   : alerts.js:23, contacts.js:12, trackers.js:15
+Impact   : Application mono-utilisateur de facto. Multi-tenant impossible.
+
+--- C7-01 a C7-05 (MAJEUR/CRITIQUE) ---
+Constat : Aucun des documents legaux requis n'existe dans le projet.
+          Aucun ecran de consentement pour geolocalisation ou microphone.
+          Pas de mecanisme de suppression des donnees.
+Preuve   : Arborescence complete parcourue - aucun fichier cgu.html, privacy.html
+Impact   : Non-conformite RGPD ou lois de protection des donnees applicables.
+
+================================================================================
+4. INVENTAIRE
+================================================================================
+
+A. ECRANS / ROUTES
+------------------
+Ecran       | ID HTML            | Statut
+------------|--------------------|-------------------------------------------------
+Login       | screen-login       | MAQUETTE - aucune verification serveur, redirect direct
+Dashboard   | screen-dashboard   | PARTIEL - stats reelles (API), radar simule
+Trackers    | screen-trackers    | PARTIEL - liste reelle (API), ajout sans formulaire
+Alertes     | screen-alerts      | PARTIEL - declenchement reel (API), liste reelle
+Contacts    | screen-contacts    | PARTIEL - CRUD reel (API), permissions absentes
+Historique  | screen-history     | PARTIEL - positions reelles (API), pas de carte
+Profil      | screen-profile     | MAQUETTE - donnees en dur, actions fictives
+
+B. BOUTONS SANS HANDLER REEL
+------------------------------
+- login-btn : redirige vers dashboard sans appel API (app.js:49)
+- logout-btn : redirige vers login sans invalidation de session (app.js:50)
+- add-tracker-btn : cree tracker avec donnees generiques sans formulaire (app.js:53-62)
+- add-contact-btn : cree contact avec donnees generiques sans formulaire (app.js:89-92)
+- toggle 2FA profil (index.html:228) : aucun handler, etat non persiste
+- "Se deconnecter" (index.html:241) : pas de session cote serveur a invalider
+
+C. DEPENDANCES PRINCIPALES
+---------------------------
+Backend (package.json) :
+  express           ^4.19.2   (installe 4.22.2, vulnerable)
+  node:sqlite       [module natif Node >= 22.5 - NON DISPONIBLE sur Node v20]
+
+Frontend : aucune dependance npm (vanilla HTML/CSS/JS)
+  Google Fonts (CDN) : Chakra Petch, Inter, IBM Plex Mono
+
+D. VARIABLES D'ENVIRONNEMENT ATTENDUES (noms seulement)
+---------------------------------------------------------
+  PORT   (optionnel, defaut 3000 - server.js:15)
+  Aucune autre variable d'environnement detectee ou documentee.
+  Note : pas de fichier .env, pas de fichier .env.example.
+
+================================================================================
+5. LIMITES DE CET AUDIT
+================================================================================
+- L'application n'a pas pu etre demarree (Node v20 incompatible). Le comportement
+  runtime reel (erreurs console navigateur, rendu effectif) n'a pas pu etre observe.
+- La maquette safetrack-app.html (188 Ko) a ete analysee en entree uniquement.
+  Son JS inline n'a pas ete audite en profondeur (sans rapport avec la version connectee).
+- Les fichiers dans files/safetrack-projet/safetrack/ semblent etre une copie du
+  frontend (non auditee separement - identique a frontend/ d'apres les tailles).
+- files.zip et safetrack-projet.zip n'ont pas ete dezippes (lecture seule,
+  contenus probablement identiques aux dossiers existants).
+- Aucun test de penetration reseau reel n'a ete effectue (audit statique uniquement).
+- La conformite legale exacte depend de la juridiction applicable (Togo, UE, autre)
+  qui n'est pas precisee dans le projet.
+- Aucun outil de linting JS (ESLint) n'est configure ; les bugs non evidents dans
+  le JS n'ont pas pu etre detectes automatiquement.
+
+================================================================================
+6. VERIFICATION GIT STATUS
+================================================================================
+NON APPLICABLE : le projet ne possede pas de depot git (.git absent).
+La commande `git status` produit : "fatal: not a git repository"
+Seul log.txt a ete cree dans le cadre de cet audit. Aucun autre fichier n'a
+ete modifie, renomme ou supprime.
+
+================================================================================
+FIN DU RAPPORT
+================================================================================

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeTrack</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ===== Sidebar (desktop / tablet) ===== -->
+  <aside class="sidebar">
+    <div class="logo-slot">
+      <div class="logo-mark"><img src="assets/logo.png" alt="Logo SafeTrack"></div>
+      <div class="logo-text">Safe<span>Track</span></div>
+    </div>
+    <nav class="side-nav" id="sidenav">
+      <button class="navbtn active" data-screen="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+        Carte
+      </button>
+      <button class="navbtn" data-screen="trackers">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
+        Trackers
+      </button>
+      <button class="navbtn" data-screen="alerts">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.29 3.86L2.11 18a1.5 1.5 0 001.4 2h17a1.5 1.5 0 001.4-2L13.71 3.86a1.5 1.5 0 00-2.42 0z"/></svg>
+        Alertes
+      </button>
+      <button class="navbtn" data-screen="contacts">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Contacts
+      </button>
+      <button class="navbtn" data-screen="history">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 106 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+        Historique
+      </button>
+      <button class="navbtn" data-screen="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profil
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="avatar-sm">GB</div>
+      <div>
+        <div class="sf-name">Gaël Blimpo</div>
+        <div class="sf-role">Compte protégé</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="main">
+
+    <header class="topbar">
+      <div class="logo-slot">
+        <div class="logo-mark"><img src="assets/logo.png" alt="Logo SafeTrack"></div>
+        <div class="logo-text">Safe<span>Track</span></div>
+      </div>
+      <span class="topbar-status" id="clock">--:--</span>
+    </header>
+
+    <div class="screens">
+
+      <!-- ===================== LOGIN ===================== -->
+      <section class="screen active" id="screen-login" style="padding:0; max-width:none;">
+        <div class="login-wrap">
+          <div class="login-card">
+            <div class="brand-mark">
+              <div class="logo-mark" style="width:40px;height:40px;"><img src="assets/logo.png" alt="Logo SafeTrack"></div>
+              <div class="logo-text" style="font-size:19px;">Safe<span>Track</span></div>
+            </div>
+            <p class="login-tagline">Localisation en temps réel et sécurité des personnes et des objets qui comptent pour vous.</p>
+
+            <div class="field">
+              <label for="login-email">Adresse email</label>
+              <input type="email" id="login-email" placeholder="vous@exemple.com" value="gael.blimpo@safetrack.tg">
+            </div>
+            <div class="field">
+              <label for="login-pass">Mot de passe</label>
+              <input type="password" id="login-pass" placeholder="••••••••" value="••••••••">
+            </div>
+
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Authentification à deux facteurs</div>
+                <div class="toggle-sub">Recommandée pour ce compte</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="twofa-toggle" checked>
+                <span class="track"></span>
+              </label>
+            </div>
+
+            <button class="btn btn-primary" id="login-btn">Se connecter</button>
+            <p class="login-footnote">CONNEXION CHIFFRÉE · AES-256</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== DASHBOARD ===================== -->
+      <section class="screen" id="screen-dashboard">
+        <div class="screen-header">
+          <span class="eyebrow">Vue d'ensemble</span>
+          <h1 class="title">Bonjour, Gaël</h1>
+        </div>
+
+        <div class="dash-grid">
+          <div>
+            <div class="radar-wrap">
+              <div class="radar-badge"><span class="dot"></span>SUIVI ACTIF</div>
+              <svg class="radar-grid" width="100%" height="100%">
+                <circle class="radar-ring" r="42%" cx="50%" cy="50%"></circle>
+                <circle class="radar-ring" r="28%" cx="50%" cy="50%"></circle>
+                <circle class="radar-ring" r="14%" cx="50%" cy="50%"></circle>
+              </svg>
+              <div class="radar-crosshair"></div>
+              <div class="radar-crosshair v"></div>
+              <div class="radar-sweep"></div>
+              <div class="radar-you"></div>
+              <div class="radar-blip" style="top:32%; left:64%; color:var(--brand);"></div>
+              <div class="radar-blip" style="top:68%; left:38%; color:var(--brand);"></div>
+              <div class="radar-blip" style="top:58%; left:74%; color:var(--amber);"></div>
+              <div class="radar-readout" id="radar-readout">
+                <span class="rlabel">LAT</span> --.---- &nbsp; <span class="rlabel">LON</span> --.----<br>
+                <span class="rlabel">PRÉCISION</span> ±-- m
+              </div>
+              <button class="sos-btn" id="sos-btn">SOS</button>
+            </div>
+
+            <h2 class="section-title">Activité récente</h2>
+            <div class="card-list" id="dashboard-feed"></div>
+          </div>
+
+          <div class="dash-side">
+            <div class="stat-row">
+              <div class="stat-card brand">
+                <div class="stat-num" id="stat-trackers">–</div>
+                <div class="stat-label">Trackers actifs</div>
+              </div>
+              <div class="stat-card safe">
+                <div class="stat-num" id="stat-contacts">–</div>
+                <div class="stat-label">Contacts</div>
+              </div>
+              <div class="stat-card alert">
+                <div class="stat-num" id="stat-alerts">–</div>
+                <div class="stat-label">Alertes 24h</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== TRACKERS ===================== -->
+      <section class="screen" id="screen-trackers">
+        <div class="screen-header">
+          <span class="eyebrow">Objets &amp; personnes</span>
+          <h1 class="title">Trackers</h1>
+        </div>
+        <div class="add-row"><div class="fab-mini" id="add-tracker-btn">+ Ajouter un tracker</div></div>
+        <div class="card-list" id="trackers-list"></div>
+      </section>
+
+      <!-- ===================== ALERTES ===================== -->
+      <section class="screen" id="screen-alerts">
+        <div class="screen-header">
+          <span class="eyebrow">Urgences</span>
+          <h1 class="title">Alertes</h1>
+        </div>
+        <h2 class="section-title">Déclencher une alerte</h2>
+        <div class="chip-row" id="alert-type-chips">
+          <div class="chip selected" data-type="SOS">SOS</div>
+          <div class="chip" data-type="Chute">Chute détectée</div>
+          <div class="chip" data-type="Sortie de zone">Sortie de zone</div>
+        </div>
+        <button class="btn btn-alert" style="max-width:280px; margin-top:10px;" id="create-alert-btn">Déclencher maintenant</button>
+
+        <h2 class="section-title">Historique</h2>
+        <div class="card-list" id="alerts-list"></div>
+      </section>
+
+      <!-- ===================== CONTACTS ===================== -->
+      <section class="screen" id="screen-contacts">
+        <div class="screen-header">
+          <span class="eyebrow">Réseau de confiance</span>
+          <h1 class="title">Contacts</h1>
+        </div>
+        <div class="add-row"><div class="fab-mini" id="add-contact-btn">+ Ajouter un contact</div></div>
+        <div class="card-list" id="contacts-list"></div>
+
+        <h2 class="section-title">Notifications envoyées</h2>
+        <div class="card-list" id="notifications-list"></div>
+      </section>
+
+      <!-- ===================== HISTORIQUE ===================== -->
+      <section class="screen" id="screen-history">
+        <div class="screen-header">
+          <span class="eyebrow">Déplacements</span>
+          <h1 class="title">Historique</h1>
+        </div>
+        <div class="timeline" id="history-timeline"></div>
+      </section>
+
+      <!-- ===================== PROFIL ===================== -->
+      <section class="screen" id="screen-profile">
+        <div class="screen-header">
+          <span class="eyebrow">Compte</span>
+          <h1 class="title">Profil &amp; sécurité</h1>
+        </div>
+        <div class="profile-head">
+          <div class="avatar-ring">GB</div>
+          <div class="profile-name">Gaël Blimpo</div>
+          <div class="profile-email">gael.blimpo@safetrack.tg</div>
+        </div>
+
+        <h2 class="section-title">Sécurité</h2>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Authentification à deux facteurs</div>
+            <div class="toggle-sub">deuxFacteursActif</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" checked>
+            <span class="track"></span>
+          </label>
+        </div>
+        <div class="kv-row"><span class="kv-label">Algorithme de chiffrement</span><span class="kv-value">AES-256</span></div>
+        <div class="kv-row"><span class="kv-label">Longueur de clé</span><span class="kv-value">256 bits</span></div>
+        <div class="kv-row"><span class="kv-label">Vecteur d'initialisation</span><span class="kv-value">a13f9c…</span></div>
+
+        <h2 class="section-title">À propos</h2>
+        <div class="kv-row"><span class="kv-label">Frontend</span><span class="kv-value">HTML / CSS / JS (statique)</span></div>
+        <div class="kv-row"><span class="kv-label">Backend</span><span class="kv-value">Node.js · Express</span></div>
+        <div class="kv-row"><span class="kv-label">Base de données</span><span class="kv-value">SQLite (node:sqlite)</span></div>
+
+        <button class="btn btn-ghost" style="max-width:280px; margin-top:22px;" id="logout-btn">Se déconnecter</button>
+      </section>
+
+    </div>
+
+    <div class="toast" id="toast">
+      <div class="card-icon icon-alert" style="width:30px;height:30px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86l-8.18 14.14A1.5 1.5 0 003.5 20h17a1.5 1.5 0 001.39-2L13.71 3.86a1.5 1.5 0 00-2.42 0z"/></svg>
+      </div>
+      <div>
+        <div class="toast-title" id="toast-title">Alerte SOS déclenchée</div>
+        <div class="toast-sub" id="toast-sub">Vos contacts de confiance ont été notifiés.</div>
+      </div>
+    </div>
+
+    <nav class="bottomnav" id="bottomnav">
+      <button class="navbtn active" data-screen="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+        Carte
+      </button>
+      <button class="navbtn" data-screen="trackers">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
+        Trackers
+      </button>
+      <button class="navbtn" data-screen="alerts">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.29 3.86L2.11 18a1.5 1.5 0 001.4 2h17a1.5 1.5 0 001.4-2L13.71 3.86a1.5 1.5 0 00-2.42 0z"/></svg>
+        Alertes
+      </button>
+      <button class="navbtn" data-screen="contacts">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Contacts
+      </button>
+      <button class="navbtn" data-screen="history">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 106 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+        Historique
+      </button>
+      <button class="navbtn" data-screen="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profil
+      </button>
+    </nav>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/render.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

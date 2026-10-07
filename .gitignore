@@ -1,0 +1,25 @@
+# Dépendances
+node_modules/
+
+# Base de données
+*.db
+data/
+backups/
+
+# Environnement (secrets)
+.env
+
+# Logs (log.txt conservé, logs applicatifs ignorés)
+*.log
+
+# Archives de captures
+docs/captures/
+
+# Systèmes
+.DS_Store
+Thumbs.db
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
